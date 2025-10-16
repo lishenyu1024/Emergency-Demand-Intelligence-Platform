@@ -76,12 +76,6 @@ Since the dataset is not yet available, this EDA plan is based on the project re
 **Figure 9: At-Risk Households Summary**  
 [Description: Color-coded card or table showing counts of households in different risk categories (high risk: >30 days, medium risk: 15-30 days, low risk: <15 days).]
 
----
-
-# Reproducibility
-
-
-All code generating the exploratory data analysis charts above has been committed to this project's GitHub repository. We will ensure any collaborator can run these scripts using the React framework or alternatives, analyzing the same input dataset to produce identical results and charts.
 
 ---
 
