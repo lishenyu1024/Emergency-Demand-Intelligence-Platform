@@ -4,7 +4,8 @@ import os
 import pandas as pd
 from config import config
 from utils.heatmap import generate_city_demand_heatmap, map_to_html
-
+from utils.getData import read_data
+from utils.responseTime import calculate_response_time
 
 app = Flask(__name__)
 
@@ -18,7 +19,7 @@ CORS(app)
 @app.route('/api/heatmap',methods=['GET'])
 def get_heatmap():
     """Get heatmap visualization"""
-    df = pd.read_csv(os.path.join(os.path.dirname(__file__), 'data', 'data.csv'), encoding='latin1')
+    df = read_data()
     map_obj = generate_city_demand_heatmap(df)
     html_map = map_to_html(map_obj)
 
@@ -26,7 +27,6 @@ def get_heatmap():
 
 @app.route('/')
 def index():
-    """健康检查端点"""
     return jsonify({
         'status': 'success',
         'message': 'LifeFlight API is running',
@@ -39,6 +39,29 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'service': 'LifeFlight Backend API'
+    })
+
+@app.route('/api/indicators', methods=['GET'])
+def get_indicators():
+    """Get indicator data"""
+    df = read_data()
+    # 1 total missions
+    total_missions = df['Incident Number'].nunique()
+    # 2 Total Cities Covered
+    total_cities_covered = df['PU City'].nunique()
+    # 3 Monthly Average Response Time
+    mart = calculate_response_time(df,2023,12)
+    # 4 Yearly Average Response Time
+    yart = calculate_response_time(df,2023)
+    return jsonify({
+        'status': 'success',
+        'message': 'Indicator data fetched successfully',
+        'data': {
+            'total_missions': total_missions,
+            'total_cities_covered': total_cities_covered,
+            'mart': mart,
+            'yart': yart
+        }
     })
 
 @app.route('/api/test', methods=['GET'])

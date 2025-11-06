@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
@@ -16,6 +17,18 @@ import ProgressCircle from "../../components/ProgressCircle";
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  // get the data from the backend
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch('http://localhost:5000/api/indicators');
+      const data = await response.json();
+      setData(data.data);
+    };
+    fetchData();
+  }, []);
+
+  console.log(data);
 
   return (
     <Box m="20px">
@@ -55,8 +68,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
+            title={data.total_missions}
+            subtitle="Total Missions Completed"
             progress="0.75"
             increase="+14%"
             icon={
@@ -74,8 +87,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
+            title={data.total_cities_covered}
+            subtitle="Cities Served"
             progress="0.50"
             increase="+21%"
             icon={
@@ -93,8 +106,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
+            title={data.mart}
+            subtitle="Monthly Average Response Time"
             progress="0.30"
             increase="+5%"
             icon={
@@ -112,8 +125,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
+            title={data.yart}
+            subtitle="Yearly Average Response Time"
             progress="0.80"
             increase="+43%"
             icon={
