@@ -6,8 +6,6 @@ import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import GeographyChart from "../../components/GeographyChart";
-import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import HistogramChart from "../../components/HistogramChart";
 

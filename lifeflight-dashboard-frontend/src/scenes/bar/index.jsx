@@ -1,8 +1,7 @@
 import { Box } from "@mui/material";
 import Header from "../../components/Header";
-import BarChart from "../../components/BarChart";
 import HistogramChart from "../../components/HistogramChart";
-
+import PredTest from "../../components/PredTest";
 
 const Bar = () => {
   return (
@@ -10,6 +9,7 @@ const Bar = () => {
       <Header title="Histogram Chart" subtitle="Overall statistics of hourly departure frequency and statistics by season" />
       <Box height="75vh">
         <HistogramChart />
+        <PredTest />
       </Box>
     </Box>
   );

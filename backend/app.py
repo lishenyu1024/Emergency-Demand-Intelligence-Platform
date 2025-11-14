@@ -7,6 +7,7 @@ from utils.heatmap import generate_city_demand_heatmap, map_to_html
 from utils.getData import read_data
 from utils.responseTime import calculate_response_time
 from utils.veh_count import calculate_veh_count
+from utils.predicting.predict_demand import predict_demand as forecast_demand
 
 app = Flask(__name__)
 
@@ -160,6 +161,55 @@ def get_hourly_departure():
             'by_season': season_data
         }
     })
+
+
+
+@app.route('/api/predict_demand', methods=['POST'])
+def predict_demand():
+    try:
+        data = request.get_json()
+        
+        if data is None:
+            model_name = request.args.get('model_name', 'prophet')
+            years = int(request.args.get('years', 3))
+        else:
+            model_name = data.get('model_name', 'prophet')
+            years = int(data.get('years', 3))
+        
+        if model_name not in ['prophet', 'arima']:
+            return jsonify({
+                'status': 'error',
+                'message': f"Unsupported model type: {model_name}. Please use 'prophet' or 'arima'"
+            }), 400
+        
+        if years < 1 or years > 10:
+            return jsonify({
+                'status': 'error',
+                'message': 'Years must be between 1 and 10'
+            }), 400
+        
+        result = forecast_demand(model_name, years)
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+        
+    except ValueError as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 400
+    except FileNotFoundError as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Model file not found: {str(e)}'
+        }), 404
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Prediction failed: {str(e)}'
+        }), 500
 
 @app.route('/api/test', methods=['GET'])
 def test():

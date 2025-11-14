@@ -5,14 +5,16 @@ import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
+import BusinessIcon from '@mui/icons-material/Business';
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import MovingIcon from '@mui/icons-material/Moving';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -127,28 +129,50 @@ const Sidebar = () => {
               setSelected={setSelected}
             /> */}
 
-            <Typography
+            {/* <Typography
               variant="h6"
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
               Charts
-            </Typography>
+            </Typography> */}
             <Item
               title="Demand Forecasting"
               to="/demand-forecasting"
-              // icon={<BarChartOutlinedIcon />}
+              icon={<AssessmentIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Scenario Modeling"
+              to="/scenario-modeling"
+              icon={<MapOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Resource Optimization"
+              to="/resource-optimization"
+              icon={<BusinessIcon />}
               selected={selected}
               setSelected={setSelected}
             />
 
             <Item
+              title="KPI & Executive Dashboard"
+              to="/kpi"
+              icon={<MovingIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+
+            {/* <Item
               title="Histogram Chart"
               to="/bar"
               icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
             {/* <Item
               title="Pie Chart"
               to="/pie"
@@ -156,20 +180,20 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             /> */}
-            <Item
+            {/* <Item
               title="Line Chart"
               to="/line"
               icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
-            <Item
+            /> */}
+            {/* <Item
               title="Geography Chart"
               to="/geography"
               icon={<MapOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+            /> */}
           </Box>
         </Menu>
       </ProSidebar>
