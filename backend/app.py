@@ -2,12 +2,14 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 import pandas as pd
+import numpy as np
 from config import config
 from utils.heatmap import generate_city_demand_heatmap, map_to_html
 from utils.getData import read_data
 from utils.responseTime import calculate_response_time
 from utils.veh_count import calculate_veh_count
 from utils.predicting.predict_demand import predict_demand as forecast_demand
+from utils.seasonality_1_2 import get_seasonality_heatmap
 
 app = Flask(__name__)
 
@@ -209,6 +211,187 @@ def predict_demand():
         return jsonify({
             'status': 'error',
             'message': f'Prediction failed: {str(e)}'
+        }), 500
+
+@app.route('/api/seasonality_heatmap', methods=['GET'])
+def get_seasonality_heatmap_api():
+    """
+    Get seasonality heatmap data (Chart 1.2).
+    
+    Query parameters:
+    - year: Year to analyze (required)
+    - location_level: 'system', 'state', 'county', or 'city' (default: 'system')
+    - location_value: Specific location value (optional)
+    - month: Month to filter (1-12, optional)
+    """
+    try:
+        year = int(request.args.get('year', 2023))
+        location_level = request.args.get('location_level', 'system')
+        location_value = request.args.get('location_value', None)
+        month = request.args.get('month', None)
+        
+        if month:
+            month = int(month)
+            if month < 1 or month > 12:
+                return jsonify({
+                    'status': 'error',
+                    'message': 'Month must be between 1 and 12'
+                }), 400
+        
+        if year < 2012 or year > 2023:
+            return jsonify({
+                'status': 'error',
+                'message': 'Year must be between 2012 and 2023'
+            }), 400
+        
+        if location_level not in ['system', 'state', 'county', 'city']:
+            return jsonify({
+                'status': 'error',
+                'message': 'location_level must be one of: system, state, county, city'
+            }), 400
+        
+        result = get_seasonality_heatmap(year, location_level, location_value, month)
+        
+        # Transform data for frontend (group by month if month not specified)
+        heatmap_data = result['heatmap_data']
+        metadata = result['metadata']
+        
+        # If month not specified, group by month
+        if month is None:
+            months_data = {}
+            for item in heatmap_data:
+                m = item['month']
+                if m not in months_data:
+                    months_data[m] = []
+                months_data[m].append(item)
+            
+            # Create structure for frontend
+            month_names = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
+            
+            formatted_data = []
+            for m in sorted(months_data.keys()):
+                month_items = months_data[m]
+                # Group by weekday and hour
+                weekday_data = {}
+                for item in month_items:
+                    wd = item['weekday']
+                    if wd not in weekday_data:
+                        weekday_data[wd] = []
+                    weekday_data[wd].append({
+                        'hour': item['hour'],
+                        'missions_per_1000': item['missions_per_1000'],
+                        'count': item['count']
+                    })
+                
+                # Format for heatmap
+                heatmap_rows = []
+                for wd in range(7):  # 0-6 weekdays
+                    hour_values = weekday_data.get(wd, [])
+                    hour_dict = {item['hour']: item for item in hour_values}
+                    # Ensure all 24 hours are present
+                    values = []
+                    for h in range(24):
+                        if h in hour_dict:
+                            values.append({
+                                'hour': h,
+                                'missions_per_1000': hour_dict[h]['missions_per_1000'],
+                                'count': hour_dict[h]['count']
+                            })
+                        else:
+                            values.append({
+                                'hour': h,
+                                'missions_per_1000': 0,
+                                'count': 0
+                            })
+                    heatmap_rows.append({
+                        'weekday': wd,
+                        'values': sorted(values, key=lambda x: x['hour'])
+                    })
+                
+                formatted_data.append({
+                    'month': m,
+                    'month_name': month_names[m - 1],
+                    'heatmap': heatmap_rows
+                })
+        else:
+            # Single month - format similarly
+            month_names = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
+            weekday_data = {}
+            for item in heatmap_data:
+                wd = item['weekday']
+                if wd not in weekday_data:
+                    weekday_data[wd] = []
+                weekday_data[wd].append({
+                    'hour': item['hour'],
+                    'missions_per_1000': item['missions_per_1000'],
+                    'count': item['count']
+                })
+            
+            heatmap_rows = []
+            for wd in range(7):
+                hour_values = weekday_data.get(wd, [])
+                hour_dict = {item['hour']: item for item in hour_values}
+                values = []
+                for h in range(24):
+                    if h in hour_dict:
+                        values.append({
+                            'hour': h,
+                            'missions_per_1000': hour_dict[h]['missions_per_1000'],
+                            'count': hour_dict[h]['count']
+                        })
+                    else:
+                        values.append({
+                            'hour': h,
+                            'missions_per_1000': 0,
+                            'count': 0
+                        })
+                heatmap_rows.append({
+                    'weekday': wd,
+                    'values': sorted(values, key=lambda x: x['hour'])
+                })
+            
+            formatted_data = [{
+                'month': month,
+                'month_name': month_names[month - 1],
+                'heatmap': heatmap_rows
+            }]
+        
+        # Calculate stats
+        all_values = [item['missions_per_1000'] for item in heatmap_data]
+        peak_item = max(heatmap_data, key=lambda x: x['missions_per_1000']) if heatmap_data else None
+        
+        stats = {
+            'total_missions': metadata['total_missions'],
+            'avg_missions_per_1000': float(np.mean(all_values)) if all_values else 0,
+            'max_missions_per_1000': float(np.max(all_values)) if all_values else 0,
+            'min_missions_per_1000': float(np.min(all_values)) if all_values else 0,
+            'peak_time': {
+                'month': peak_item['month'] if peak_item else None,
+                'weekday': peak_item['weekday'] if peak_item else None,
+                'hour': peak_item['hour'] if peak_item else None
+            } if peak_item else None
+        }
+        
+        return jsonify({
+            'status': 'success',
+            'data': {
+                'heatmap_data': formatted_data,
+                'metadata': metadata,
+                'stats': stats
+            }
+        })
+        
+    except ValueError as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Invalid parameter: {str(e)}'
+        }), 400
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to get seasonality heatmap: {str(e)}'
         }), 500
 
 @app.route('/api/test', methods=['GET'])
