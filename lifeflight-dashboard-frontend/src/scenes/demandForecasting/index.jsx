@@ -17,7 +17,7 @@ export default function DemandForecasting() {
         <HistogramChart />
       </Box>
 
-      <Box height="25vh">
+      <Box sx={{ minHeight: '25vh', mb: 3 }}>
         <PredTest />
       </Box>
 

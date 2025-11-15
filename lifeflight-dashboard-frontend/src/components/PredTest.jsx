@@ -123,8 +123,15 @@ const PredTest = () => {
   
   return (
     <Box m="20px">
-      <Typography variant="h2" sx={{ mb: "20px", color: colors.grey[100] }}>
-        Demand Prediction
+      <Typography variant="h3" sx={{ mb: "10px", color: colors.grey[100] }}>
+        1.1 Demand Prediction
+      </Typography>
+      <Typography variant="h6" sx={{ mb: "10px", color: colors.grey[300] }}>
+        Demand Prediction: Predict the demand for the next 1-10 years using the historical data
+      </Typography>
+      <Typography variant="body2" sx={{ mb: "20px", color: colors.grey[400], fontStyle: 'italic' }}>
+        This chart uses the Prophet and ARIMA models to predict the demand for the next 1-10 years using the historical data.
+        The 95% confidence interval is displayed.
       </Typography>
       
       {/* Parameter selection area */}
@@ -213,7 +220,7 @@ const PredTest = () => {
       
       {/* Results display */}
       {result && (
-        <Box>
+        <Box sx={{ display: 'block', width: '100%', mb: 3 }}>
           {/* Statistics */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
             <Grid item xs={12} md={3}>
