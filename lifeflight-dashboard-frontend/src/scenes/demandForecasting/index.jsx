@@ -15,22 +15,22 @@ export default function DemandForecasting() {
     <Box m="20px">
       <Header title="Demand Forecasting" subtitle="Demand Forecasting" />
 
-      <Box height="75vh">
+      {/* <Box height="75vh">
         <HistogramChart />
       </Box>
       
       <Box height="75vh">
         <LineChart />
-      </Box>
+      </Box> */}
 
-      <Box sx={{ minHeight: '25vh', mb: 3 }}>
+      <Box sx={{ minHeight: '25vh' }}>
         <PredictDemand />
       </Box>
 
       
 
       {/* Chart 1.2: Seasonality & Day-of-Week/Hour Heatmap */}
-      <Box mt="500px">
+      <Box mt="100px">
         <SeasonalityHeatmap />
       </Box>
 
