@@ -25,6 +25,7 @@ from utils.base_siting_2_2 import get_base_siting_analysis
 from utils.kpi_bullets_4_1 import get_kpi_bullets
 from utils.trend_wall_4_2 import get_trend_wall_data
 from utils.cost_benefit_4_3 import get_cost_benefit_throughput_data
+from utils.safety_spc_4_4 import get_safety_spc_data
 
 app = Flask(__name__)
 
@@ -1026,6 +1027,38 @@ def get_cost_benefit_throughput_api():
         return jsonify({
             'status': 'error',
             'message': f'Failed to get cost-benefit-throughput data: {str(e)}'
+        }), 500
+
+@app.route('/api/safety_spc', methods=['GET'])
+def get_safety_spc_api():
+    """
+    Get safety SPC control chart data (Chart 4.4).
+    
+    Query parameters:
+    - start_year: Start year (default: 2020)
+    - end_year: End year (default: 2023)
+    - aggregation: Aggregation level - 'month', 'week', or 'year' (default: 'month')
+    - method: Control limit method - '3sigma' or 'individual' (default: '3sigma')
+    """
+    try:
+        start_year = int(request.args.get('start_year', 2020))
+        end_year = int(request.args.get('end_year', 2023))
+        aggregation = request.args.get('aggregation', 'month')
+        method = request.args.get('method', '3sigma')
+        result = get_safety_spc_data(
+            start_year=start_year,
+            end_year=end_year,
+            aggregation=aggregation,
+            method=method
+        )
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to get safety SPC data: {str(e)}'
         }), 500
 
 @app.route('/api/test', methods=['GET'])
