@@ -6,7 +6,6 @@ import LineChart from "../../components/LineChart";
 import SeasonalityHeatmap from "../../components/1.2SeasonalityHeatmap";
 import DemographicsElasticity from "../../components/1.3DemographicsElasticity";
 import EventImpactReplay from "../../components/1.4EventImpactReplay";
-import PredictDemand from "../../components/PredictDemand";
 
 
 

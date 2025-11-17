@@ -9,13 +9,7 @@ from utils.heatmap import generate_city_demand_heatmap, map_to_html
 from utils.getData import read_data
 from utils.responseTime import calculate_response_time
 from utils.veh_count import calculate_veh_count
-from utils.predicting.predict_demand import (
-    predict_demand as forecast_demand,
-    prophet_predict,
-    prepare_prophet_data,
-    extract_forecast_data,
-    cross_validate_prophet
-)
+from utils.predicting.predict_demand import predict_demand as forecast_demand
 from utils.seasonality_1_2 import get_seasonality_heatmap
 from utils.demographics_1_3 import get_demographics_elasticity
 from utils.event_impact_1_4 import get_event_impact_analysis, get_all_events
@@ -23,6 +17,10 @@ from utils.weather_risk_2_4 import get_weather_risk_analysis
 from utils.scenario_whatif_2_1 import simulate_scenario, get_base_locations, compare_scenarios
 from utils.pareto_sensitivity_2_3 import get_pareto_sensitivity_analysis
 from utils.base_siting_2_2 import get_base_siting_analysis
+from utils.kpi_bullets_4_1 import get_kpi_bullets
+from utils.trend_wall_4_2 import get_trend_wall_data
+from utils.cost_benefit_4_3 import get_cost_benefit_throughput_data
+from utils.safety_spc_4_4 import get_safety_spc_data
 
 app = Flask(__name__)
 
@@ -178,7 +176,7 @@ def get_hourly_departure():
     })
 
 
-# 1.1 Predict Demand
+
 @app.route('/api/predict_demand', methods=['POST'])
 def predict_demand():
     try:
@@ -225,7 +223,6 @@ def predict_demand():
             'status': 'error',
             'message': f'Prediction failed: {str(e)}'
         }), 500
-    
 
 @app.route('/api/predict_demand_v2', methods=['POST'])
 def predict_demand_v2():
@@ -967,6 +964,138 @@ def get_weather_risk_api():
         return jsonify({
             'status': 'error',
             'message': f'Failed to get weather risk data: {str(e)}'
+        }), 500
+
+@app.route('/api/kpi_bullets', methods=['GET'])
+def get_kpi_bullets_api():
+    """
+    Get KPI bullets data for executive dashboard (Chart 4.1).
+    
+    Query parameters:
+    - year: Year to calculate KPIs for (default: 2023)
+    - sla_target_minutes: SLA target in minutes (default: 20)
+    - include_historical: Include historical trends (default: true)
+    """
+    try:
+        year = int(request.args.get('year', 2023))
+        sla_target_minutes = int(request.args.get('sla_target_minutes', 20))
+        include_historical = request.args.get('include_historical', 'true').lower() == 'true'
+        
+        result = get_kpi_bullets(
+            year=year,
+            sla_target_minutes=sla_target_minutes,
+            include_historical=include_historical
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to get KPI bullets: {str(e)}'
+        }), 500
+
+@app.route('/api/trend_wall', methods=['GET'])
+def get_trend_wall_api():
+    """
+    Get trend wall data for executive dashboard (Chart 4.2).
+    
+    Query parameters:
+    - current_year: Current year (default: 2023)
+    - current_month: Current month (optional, default: None = all months)
+    - forecast_months: Number of months to forecast ahead (default: 6)
+    """
+    try:
+        current_year = int(request.args.get('current_year', 2023))
+        current_month = request.args.get('current_month')
+        current_month = int(current_month) if current_month else None
+        forecast_months = int(request.args.get('forecast_months', 6))
+        
+        result = get_trend_wall_data(
+            current_year=current_year,
+            current_month=current_month,
+            forecast_months=forecast_months
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to get trend wall data: {str(e)}'
+        }), 500
+
+@app.route('/api/cost_benefit_throughput', methods=['GET'])
+def get_cost_benefit_throughput_api():
+    """
+    Get cost-benefit-throughput dual-axis data (Chart 4.3).
+    
+    Query parameters:
+    - start_year: Start year (default: 2020)
+    - end_year: End year (default: 2023)
+    - aggregation: Aggregation level - 'month' or 'year' (default: 'month')
+    """
+    try:
+        start_year = int(request.args.get('start_year', 2020))
+        end_year = int(request.args.get('end_year', 2023))
+        aggregation = request.args.get('aggregation', 'month')
+        
+        result = get_cost_benefit_throughput_data(
+            start_year=start_year,
+            end_year=end_year,
+            aggregation=aggregation
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to get cost-benefit-throughput data: {str(e)}'
+        }), 500
+
+@app.route('/api/safety_spc', methods=['GET'])
+def get_safety_spc_api():
+    """
+    Get safety SPC control chart data (Chart 4.4).
+    
+    Query parameters:
+    - start_year: Start year (default: 2020)
+    - end_year: End year (default: 2023)
+    - aggregation: Aggregation level - 'month', 'week', or 'year' (default: 'month')
+    - method: Control limit method - '3sigma' or 'individual' (default: '3sigma')
+    """
+    try:
+        start_year = int(request.args.get('start_year', 2020))
+        end_year = int(request.args.get('end_year', 2023))
+        aggregation = request.args.get('aggregation', 'month')
+        method = request.args.get('method', '3sigma')
+        
+        result = get_safety_spc_data(
+            start_year=start_year,
+            end_year=end_year,
+            aggregation=aggregation,
+            method=method
+        )
+        
+        return jsonify({
+            'status': 'success',
+            'data': result
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Failed to get safety SPC data: {str(e)}'
         }), 500
 
 @app.route('/api/test', methods=['GET'])
