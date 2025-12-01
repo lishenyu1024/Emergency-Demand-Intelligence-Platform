@@ -1,10 +1,11 @@
-# FlightPath Optimizer
+# Emergency Demand Intelligence Platform
 
-A sophisticated predictive analytics platform for LifeFlight emergency medical services, providing demand forecasting, scenario modeling, and KPI dashboards.
+A platform for emergency medical services that uses visual tools to provide demand forecasting, scenario modeling, and KPI dashboards. It helps optimize ambulance staffing and resources in Maine, long-term business planning, site selection, service demand growth, and future development.
 
 ## Overview
 
-This project empowers LifeFlight to strategically forecast emergency medical demand over a 5–10 year horizon and model optimal resource allocation scenarios. The platform integrates key external data including population projections, historical and forecasted weather data, and age demographics to enhance the precision of demand forecasts.
+This project helps LifeFlight make strategic forecasts of emergency medical demand over the next 5–10 years and design the best resource allocation plans.
+The platform brings together key external data, including population forecasts, historical and forecast weather data, and age demographics, to make demand predictions more accurate.
 
 ## Features
 
