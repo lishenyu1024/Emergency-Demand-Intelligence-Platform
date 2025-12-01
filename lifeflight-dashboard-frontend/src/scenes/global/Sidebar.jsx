@@ -150,13 +150,6 @@ const Sidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Item
-              title="Resource Optimization"
-              to="/resource-optimization"
-              icon={<BusinessIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
 
             <Item
               title="KPI & Executive Dashboard"

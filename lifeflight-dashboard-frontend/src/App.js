@@ -12,7 +12,6 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import DemandForecasting from "./scenes/demandForecasting";
 import ScenarioModeling from "./scenes/scenarioModeling";
-import ResourceOptimization from "./scenes/resourceOptimization";
 import KPIDashboard from "./scenes/kpi";
 
 function App() {
@@ -36,7 +35,6 @@ function App() {
               <Route path="/bar" element={<Bar />} />
               <Route path="/line" element={<Line />} />
               <Route path="/geography" element={<Geography />} />
-              <Route path="/resource-optimization" element={<ResourceOptimization />} />
               <Route path="/kpi" element={<KPIDashboard />} />
   
             </Routes>
